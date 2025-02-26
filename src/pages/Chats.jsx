@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useRef } from 'react';
-
 //Style
 import classes from '../assets/Chats.module.css';
-
 //Components
-import { IoMdCloseCircleOutline } from 'react-icons/io';
 import { CiEdit } from 'react-icons/ci';
-import { FaShareNodes } from 'react-icons/fa6';
-import { FaFont } from 'react-icons/fa';
-import { IoIosColorPalette } from 'react-icons/io';
-import { FaLongArrowAltRight } from 'react-icons/fa';
-import { MdEmojiEmotions } from 'react-icons/md';
-import { IoSend } from 'react-icons/io5';
-import { MdOutlineEdit } from 'react-icons/md';
+import ChatsList from '../components/ChatsList';
+import ChatsToolBar from '../components/ChatsToolBar';
+import ChatTextInput from '../components/ChatTextInput';
 
 //套件
 import { v4 as uuidv4 } from 'uuid';
@@ -27,7 +20,7 @@ const Chats = () => {
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState({
     text: '',
-    title: 'New Chat',
+    title: '',
   });
   const [activeChat, setActiveChat] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,22 +32,18 @@ const Chats = () => {
   useEffect(() => {
     const messagesContainer = messageEndRef.current?.parentElement; // 取得 scrollable div
     if (!messagesContainer) return;
-
     const handleScroll = () => {
       const { scrollTop, scrollHeight, clientHeight } = messagesContainer;
       const isUserAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
-
       if (!isUserAtBottom) {
         setIsAtBottom(false);
       } else {
         setIsAtBottom(true);
       }
     };
-
     messagesContainer.addEventListener('scroll', handleScroll);
     return () => messagesContainer.removeEventListener('scroll', handleScroll);
   }, []);
-
   useEffect(() => {
     if (isAtBottom) {
       messageEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -62,6 +51,7 @@ const Chats = () => {
   }, [messages]);
   //==============處理chat box的scroll是否自動往下 END=========
 
+  //初始化message
   useEffect(() => {
     setMessages(chats.find((chat) => chat.id === activeChat)?.messages || []);
   }, [chats, activeChat]);
@@ -71,13 +61,15 @@ const Chats = () => {
     setInputValue({ ...inputValue, [name]: value });
   }
 
+  //初始化chats
   useEffect(() => {
     if (chats.length === 0 && !hasInitialized.current) {
-      hasInitialized.current = true; // 記住已經執行過
+      hasInitialized.current = true;
       createNewChat('New Chat');
     }
   }, []);
 
+  //初始化activeChat
   useEffect(() => {
     if (chats.length < 1) {
       setActiveChat(null);
@@ -92,7 +84,7 @@ const Chats = () => {
     const newMessage = {
       role: 'prompt',
       text: inputValue.text,
-      timestamp: format(new Date(), 'mm/dd HH:mm:ss'),
+      timestamp: format(new Date(), 'MM/dd HH:mm:ss'),
     };
     const updatedMessage = [...messages, newMessage];
 
@@ -129,14 +121,13 @@ const Chats = () => {
         if (!response.ok) {
           throw Error('fail to get response');
         }
-
         const data = await response.json();
         const chatResponse = data.choices[0].message.content.trim();
 
         const newResponseMessage = {
           role: 'response',
           text: chatResponse,
-          timestamp: format(new Date(), 'mm/dd HH:mm:ss'),
+          timestamp: format(new Date(), 'MM/dd HH:mm:ss'),
         };
         const updatedResponseMessages = [...updatedMessage, newResponseMessage];
         setMessages(updatedResponseMessages);
@@ -212,67 +203,21 @@ const Chats = () => {
               onClick={() => createNewChat('New Chat')}
             />
           </div>
-
-          {chats?.map((chat) => {
-            return (
-              <div
-                key={chat.id}
-                className={`${
-                  chat.id === activeChat
-                    ? 'bg-[linear-gradient(to_right,transparent_0%,#eee_15%,transparent_100%)]'
-                    : ''
-                }  flex w-full px-2 py-2 rounded-md items-center 
-                justify-between hover:bg-[linear-gradient(to_right,transparent_0%,#eee_15%,transparent_100%)]
-                 hover:cursor-pointer`}
-                onClick={() => setActiveChat(chat.id)}
-              >
-                <div className="flex flex-col">
-                  <div className="flex gap-3">
-                    {isEditingTitle && activeChat === chat.id ? (
-                      <input
-                        type="text"
-                        value={inputValue.title}
-                        onChange={handleInputValue}
-                        name="title"
-                        className="text-2xl border"
-                        maxLength={15}
-                      />
-                    ) : (
-                      <span className="text-2xl mb-3">{chat.title}</span>
-                    )}
-
-                    <MdOutlineEdit
-                      className="text-2xl  hover:bg-amber-800"
-                      onClick={() => {
-                        setIsEditingTitle((prev) => !prev);
-                        handleEditTitle(chat.id);
-                      }}
-                    />
-                  </div>
-
-                  <span className="text-md">{chat.time}</span>
-                </div>
-                <IoMdCloseCircleOutline
-                  className="text-3xl hover:cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteChat(chat.id);
-                  }}
-                />
-              </div>
-            );
-          })}
+          <ChatsList
+            chats={chats}
+            activeChat={activeChat}
+            setActiveChat={setActiveChat}
+            handleDeleteChat={handleDeleteChat}
+            isEditingTitle={isEditingTitle}
+            handleInputValue={handleInputValue}
+            handleEditTitle={handleEditTitle}
+            inputValue={inputValue}
+            setIsEditingTitle={setIsEditingTitle}
+          />
         </div>
       </div>
       <div className="right relative w-[70%] h-full bg-[#94dbe2b7] mt-5 mx-5 rounded-md overflow-hidden">
-        <div className="h-[80px] bg-amber-200 flex items-center justify-between pl-5 pr-5 gap-5">
-          <div className="flex gap-5 ">
-            <FaShareNodes className="text-3xl hover:cursor-pointer" />
-            <FaFont className="text-3xl hover:cursor-pointer" />
-            <IoIosColorPalette className="text-3xl hover:cursor-pointer" />
-          </div>
-          <FaLongArrowAltRight className="text-3xl hover:cursor-pointer" />
-        </div>
+        <ChatsToolBar />
         <div
           className={`${classes['custom-scrollbar']} flex flex-col gap-3 p-5 overflow-y-auto h-[calc(100%-170px)]`}
         >
@@ -294,23 +239,12 @@ const Chats = () => {
         {isLoading && (
           <p className="absolute top-[50px] left-[45%]">AI is typing.....</p>
         )}
-        <div className="bg-amber-200 w-full flex items-center py-5 pr-10 pl-6 ">
-          <MdEmojiEmotions className="text-3xl hover:cursor-pointer mr-2" />
-          <textarea
-            type="text"
-            className="bg-[#fff] flex-grow-1 py-3 mx-2 pl-3"
-            placeholder="請輸入訊息"
-            value={inputValue.text}
-            onChange={handleInputValue}
-            onKeyDown={handleKeyDownText}
-            rows={1}
-            name="text"
-          />
-          <IoSend
-            className="text-3xl -ml-10 hover:cursor-pointer"
-            onClick={handleSubmitText}
-          />
-        </div>
+        <ChatTextInput
+          inputValue={inputValue}
+          handleInputValue={handleInputValue}
+          handleKeyDownText={handleKeyDownText}
+          handleSubmitText={handleSubmitText}
+        />
       </div>
     </div>
   );
