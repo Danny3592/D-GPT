@@ -12,21 +12,41 @@ import ChatTextInput from '../components/ChatTextInput';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 
+
 const Chats = () => {
+  //控制chat-box scroll
   const messageEndRef = useRef(null);
+  const [isAtBottom, setIsAtBottom] = useState(true);
+
+  //防止StrictMode建立兩個chats
   const hasInitialized = useRef(false);
 
+  //chat-box state
   const [chats, setChats] = useState([]);
   const [messages, setMessages] = useState([]);
   const [inputValue, setInputValue] = useState({
     text: '',
     title: '',
   });
-  const [activeChat, setActiveChat] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
 
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  function handleEmojiSelect(emoji){
+    setInputValue((prevInput)=>{
+      return {...prevInput,text:prevInput.text+emoji.native}
+      })
+  }
+
+
+
+  const [fontSize, setFontSize] = useState(1);
+  const [color, setColor] = useState('#fff');
+
+  //目前標記的chat
+  const [activeChat, setActiveChat] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(true);
 
   //==============處理chat box的scroll是否自動往下 START=========
   useEffect(() => {
@@ -189,6 +209,20 @@ const Chats = () => {
     setInputValue((prev) => ({ ...prev, title: '' }));
   }
 
+  const downloadJson = () => {
+    const file = chats.find((chat) => chat.id === activeChat);
+    const jsonString = JSON.stringify(file, null, 2); // 轉換成 JSON 格式
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'data.json'; // 設定下載的檔案名稱
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex h-[calc(100vh-150px)] ">
       <div
@@ -201,6 +235,7 @@ const Chats = () => {
             <CiEdit
               className="text-3xl font-bold hover:cursor-pointer"
               onClick={() => createNewChat('New Chat')}
+              title="新增對話聊天室"
             />
           </div>
           <ChatsList
@@ -217,7 +252,13 @@ const Chats = () => {
         </div>
       </div>
       <div className="right relative w-[70%] h-full bg-[#94dbe2b7] mt-5 mx-5 rounded-md overflow-hidden">
-        <ChatsToolBar />
+        <ChatsToolBar
+          setFontSize={setFontSize}
+          fontSize={fontSize}
+          setColor={setColor}
+          color={color}
+          downloadJson={downloadJson}
+        />
         <div
           className={`${classes['custom-scrollbar']} flex flex-col gap-3 p-5 overflow-y-auto h-[calc(100%-170px)]`}
         >
@@ -229,7 +270,12 @@ const Chats = () => {
                 }`}
                 key={message.timestamp + index}
               >
-                <span className="text-2xl font-medium ">{message.text}</span>
+                <span
+                  className={`text-${fontSize}xl font-medium`}
+                  style={{ color: color }}
+                >
+                  {message.text}
+                </span>
                 <span className="block text-white">{message.timestamp}</span>
               </div>
             );
@@ -237,13 +283,18 @@ const Chats = () => {
           <div ref={messageEndRef}></div>
         </div>
         {isLoading && (
-          <p className="absolute top-[50px] left-[45%]">AI is typing.....</p>
+          <p className="absolute top-[20px] left-[45%] text-3xl bg-[#e50b0b] px-5 py-2 rounded-md">
+            AI is typing.....
+          </p>
         )}
         <ChatTextInput
           inputValue={inputValue}
           handleInputValue={handleInputValue}
           handleKeyDownText={handleKeyDownText}
           handleSubmitText={handleSubmitText}
+          handleEmojiSelect={handleEmojiSelect}
+          setShowEmojiPicker={setShowEmojiPicker}
+          showEmojiPicker={showEmojiPicker}
         />
       </div>
     </div>

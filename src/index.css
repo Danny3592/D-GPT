@@ -23,9 +23,9 @@ body {
     hover:bg-[#f3c4c4] hover:text-[#2b2626];
   }
   .prompt {
-    @apply bg-[#e88eba] inline-block px-5 py-2 ml-auto max-w-[1000px] rounded-md;
+    @apply bg-[#e88eba95] inline-block px-5 py-2 ml-auto max-w-[1000px] rounded-md;
   }
   .response {
-    @apply bg-[#2562b1] inline-block px-5 py-2  mr-auto max-w-[1000px] rounded-md;
+    @apply bg-[#2562b168] inline-block px-5 py-2  mr-auto max-w-[1000px] rounded-md;
   }
 }
