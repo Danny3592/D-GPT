@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Exo+2:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import 'tailwindcss';
+
+html,
+body {
+  font-family: 'Exo 2', sans-serif;
+  background: linear-gradient(135deg, #615fd2, #0d2a3e);
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+@layer utilities {
+  .btn {
+    @apply text-xl font-bold px-6 py-2 rounded-lg hover:cursor-pointer transition-all duration-200 sm:text-3xl mx-2 sm:mx-0;
+  }
+
+  .main-btn {
+    @apply bg-amber-100  hover:brightness-120;
+  }
+  .sub-btn {
+    @apply border border-amber-100  text-[#eee] 
+    hover:bg-[#f3c4c4] hover:text-[#2b2626];
+  }
+  .prompt {
+    @apply bg-[#e88eba] inline-block px-5 py-2 ml-auto;
+  }
+  .response {
+    @apply bg-[#2562b1] inline-block px-5 py-2  mr-auto;
+  }
+}
