@@ -98,6 +98,10 @@ const Chats = () => {
       setActiveChat(chats[0].id); // 當 activeChat 為 null 時，預設第一個聊天
     }
   }, [activeChat, chats]);
+  
+
+ 
+
 
   function handleSubmitText() {
     if (inputValue.text.trim() === '' || isLoading) return;
