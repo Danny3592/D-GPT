@@ -13,7 +13,6 @@ const ChatsList = ({
   inputValue,
   setIsEditingTitle,
 }) => {
-  console.log('chats = ',chats);
   return (
     <div>
       {chats.length > 0 &&

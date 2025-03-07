@@ -24,9 +24,6 @@ const ChatsToolBar = ({
 
   const [colorPickerIsOpen, setColorPickerIsOpen] = useState(false);
 
-  useEffect(() => {
-    console.log('colorPickerIsOpen = ',colorPickerIsOpen);
-  }, [colorPickerIsOpen]);
 
 
   useClickAway(pickerRef, () => setColorPickerIsOpen(false)); // 監聽點擊外部
