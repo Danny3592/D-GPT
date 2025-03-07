@@ -54,6 +54,8 @@ const Chats = () => {
     setChats(storedChats);
     if (storedChats.length > 0) {
       setActiveChat(storedChats[0].id);
+    }else{
+      createNewChat('New Chat')
     }
   }, []);
 
