@@ -50,13 +50,7 @@ const Chats = () => {
   //取得localStorage的紀錄
 
   useEffect(() => {
-    console.log('chats updated = ', chats); // ✅ 確保 `chats` 更新後有值
-  }, [chats]);
-  
-  
-  useEffect(() => {
     const storedChats = JSON.parse(localStorage.getItem('chats')) || [];
-    console.log('storedChats11fqwfqwf1 = ', storedChats);
     setChats(storedChats);
     if (storedChats.length > 0) {
       setActiveChat(storedChats[0].id);
@@ -112,7 +106,6 @@ const Chats = () => {
     if (chats.length === 0 && !hasInitialized.current) {
       createNewChat('New Chat');
       hasInitialized.current = true;
-      console.log('pass');
     }
   }, []);
 
@@ -233,8 +226,6 @@ const Chats = () => {
       messages: [],
     };
     const updatedChats = [newChat, ...chats];
-
-    console.log('updatedChats = ', updatedChats);
     if (hasInitialized.current === true) {
       localStorage.setItem('chats', JSON.stringify(updatedChats));
     }
