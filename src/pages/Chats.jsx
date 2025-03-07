@@ -50,13 +50,23 @@ const Chats = () => {
   //取得localStorage的紀錄
 
   useEffect(() => {
-    const storedChats = JSON.parse(localStorage.getItem('chats')) || [];
-    console.log('storedChats = ', storedChats);
-    setChats(storedChats);
-    if (storedChats.length > 0) {
-      setActiveChat(storedChats[0].id);
+    if (typeof window !== "undefined") {
+      setTimeout(() => {
+        const storedChats = JSON.parse(localStorage.getItem("chats")) || [];
+        setChats(storedChats);
+      }, 100); // 延遲 100ms 確保 `localStorage` 已經準備好
     }
   }, []);
+  
+
+  // useEffect(() => {
+  //   const storedChats = JSON.parse(localStorage.getItem('chats')) || [];
+  //   console.log('storedChats = ', storedChats);
+  //   setChats(storedChats);
+  //   if (storedChats.length > 0) {
+  //     setActiveChat(storedChats[0].id);
+  //   }
+  // }, []);
 
   useEffect(() => {
     if (activeChat) {
