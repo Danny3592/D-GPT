@@ -1,7 +1,6 @@
 import { createBrowserRouter } from 'react-router';
 import MainHeader from '../layout/MainHeader';
 import Home from '../pages/Home';
-import Login from '../pages/Login';
 import Chats from '../pages/Chats';
 
 const route = createBrowserRouter([
@@ -10,7 +9,6 @@ const route = createBrowserRouter([
     element: <MainHeader />,
     children: [
       { index: true, element: <Home /> },
-      { path: '/login', element: <Login /> },
       { path: '/chats', element: <Chats /> },
     ],
   },

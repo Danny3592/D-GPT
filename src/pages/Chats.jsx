@@ -12,7 +12,6 @@ import ChatTextInput from '../components/ChatTextInput';
 import { v4 as uuidv4 } from 'uuid';
 import { format } from 'date-fns';
 
-
 const Chats = () => {
   //控制chat-box scroll
   const messageEndRef = useRef(null);
@@ -31,13 +30,11 @@ const Chats = () => {
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
-  function handleEmojiSelect(emoji){
-    setInputValue((prevInput)=>{
-      return {...prevInput,text:prevInput.text+emoji.native}
-      })
+  function handleEmojiSelect(emoji) {
+    setInputValue((prevInput) => {
+      return { ...prevInput, text: prevInput.text + emoji.native };
+    });
   }
-
-
 
   const [fontSize, setFontSize] = useState(1);
   const [color, setColor] = useState('#fff');
@@ -47,6 +44,26 @@ const Chats = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
+
+  // const chatEndRef = useRef(null);
+
+  //取得localStorage的紀錄
+
+  useEffect(() => {
+    const storedChats = JSON.parse(localStorage.getItem('chats')) || [];
+    console.log('storedChats = ', storedChats);
+    setChats(storedChats);
+    if (storedChats.length > 0) {
+      setActiveChat(storedChats[0].id);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeChat) {
+      const storeMessages = JSON.parse(localStorage.getItem(activeChat)) || [];
+      setMessages(storeMessages);
+    }
+  }, [activeChat]);
 
   //==============處理chat box的scroll是否自動往下 START=========
   useEffect(() => {
@@ -73,7 +90,11 @@ const Chats = () => {
 
   //初始化message
   useEffect(() => {
-    setMessages(chats.find((chat) => chat.id === activeChat)?.messages || []);
+    setMessages(
+      (chats.length > 0 &&
+        chats.find((chat) => chat.id === activeChat)?.messages) ||
+        [],
+    );
   }, [chats, activeChat]);
 
   function handleInputValue(e) {
@@ -84,8 +105,9 @@ const Chats = () => {
   //初始化chats
   useEffect(() => {
     if (chats.length === 0 && !hasInitialized.current) {
-      hasInitialized.current = true;
       createNewChat('New Chat');
+      hasInitialized.current = true;
+      console.log('pass');
     }
   }, []);
 
@@ -98,10 +120,6 @@ const Chats = () => {
       setActiveChat(chats[0].id); // 當 activeChat 為 null 時，預設第一個聊天
     }
   }, [activeChat, chats]);
-  
-
- 
-
 
   function handleSubmitText() {
     if (inputValue.text.trim() === '' || isLoading) return;
@@ -113,6 +131,9 @@ const Chats = () => {
     const updatedMessage = [...messages, newMessage];
 
     setMessages(updatedMessage);
+
+    localStorage.setItem(activeChat, JSON.stringify(updatedMessage));
+
     setInputValue({ ...inputValue, text: '' });
     const updatedChats = chats.map((chat) => {
       if (activeChat === chat.id) {
@@ -122,6 +143,7 @@ const Chats = () => {
     });
 
     setChats(updatedChats);
+    localStorage.setItem('chats', JSON.stringify(updatedChats));
     getResponse();
 
     async function getResponse() {
@@ -156,13 +178,20 @@ const Chats = () => {
         const updatedResponseMessages = [...updatedMessage, newResponseMessage];
         setMessages(updatedResponseMessages);
 
+        localStorage.setItem(
+          'activeChat',
+          JSON.stringify(updatedResponseMessages),
+        );
+
         const updatedResponseChats = chats.map((chat) => {
           if (activeChat === chat.id) {
             return { ...chat, messages: updatedResponseMessages };
           }
           return chat;
         });
+
         setChats(updatedResponseChats);
+        localStorage.setItem('chats', JSON.stringify(updatedResponseChats));
       } catch (error) {
         console.error(error);
       } finally {
@@ -174,6 +203,10 @@ const Chats = () => {
   function handleDeleteChat(id) {
     const updatedChats = chats.filter((chat) => id !== chat.id);
     setChats(updatedChats);
+    localStorage.setItem('chats', JSON.stringify(updatedChats));
+
+    localStorage.removeItem(id);
+
     if (activeChat === id) {
       const newActiveChat = updatedChats.length > 0 ? updatedChats[0].id : null;
       setActiveChat(newActiveChat);
@@ -187,29 +220,38 @@ const Chats = () => {
     }
   }
 
-  function createNewChat(text, callback) {
+  function createNewChat(text) {
     const newChat = {
       title: text,
       id: uuidv4(),
       time: format(new Date(), 'yyyy/mm/dd HH:mm:ss'),
       messages: [],
     };
-    setChats((prevChats) => {
-      const updatedChats = [newChat, ...prevChats];
-      setActiveChat(newChat.id);
-      if (callback) {
-        callback;
-      }
-      return updatedChats;
-    });
+    const updatedChats = [newChat, ...chats];
+
+    console.log('updatedChats = ', updatedChats);
+    if (hasInitialized.current === true) {
+      localStorage.setItem('chats', JSON.stringify(updatedChats));
+    }
+    localStorage.setItem(newChat.id, JSON.stringify(newChat.messages));
+
+    setChats(updatedChats);
+    setActiveChat(newChat.id);
   }
 
   function handleEditTitle(id) {
-    setChats((prevChats) =>
-      prevChats.map((chat) =>
-        chat.id === id ? { ...chat, title: inputValue.title } : chat,
-      ),
-    );
+    const updatedChats = chats.map((chat) => {
+      if (chat.id === id && inputValue.title) {
+        return { ...chat, title: inputValue.title };
+      }
+      return chat;
+    });
+
+    setChats(updatedChats)
+    localStorage.setItem('chats', JSON.stringify(updatedChats));
+
+
+
     setInputValue((prev) => ({ ...prev, title: '' }));
   }
 

@@ -31,16 +31,6 @@ const MainHeader = () => {
               </NavLink>
             </li>
           </ul>
-          <NavLink
-            to="/login"
-            className={({ isActive }) =>
-              `text-[2rem]  my-5 inline-block font-bold hover:text-[#e74545] ${
-                isActive ? 'text-[#e74545]' : 'text-[#575454]'
-              }`
-            }
-          >
-            Login
-          </NavLink>
         </nav>
       </header>
       <Outlet />

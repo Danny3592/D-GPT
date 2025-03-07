@@ -14,9 +14,6 @@ const Home = () => {
       </div>
 
       <div className="flex mt-15 md:gap-20 gap-5">
-        <Link to="/login">
-          <button className="main-btn btn">現在登入</button>
-        </Link>
         <Link to="/chats">
           <button className="sub-btn btn">進入聊天室</button>
         </Link>
