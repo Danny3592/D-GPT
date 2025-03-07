@@ -101,13 +101,6 @@ const Chats = () => {
     setInputValue({ ...inputValue, [name]: value });
   }
 
-  //初始化chats
-  useEffect(() => {
-    if (chats.length === 0 && !hasInitialized.current) {
-      createNewChat('New Chat');
-      hasInitialized.current = true;
-    }
-  }, []);
 
   //初始化activeChat
   useEffect(() => {
@@ -226,9 +219,9 @@ const Chats = () => {
       messages: [],
     };
     const updatedChats = [newChat, ...chats];
-    if (hasInitialized.current === true) {
-      localStorage.setItem('chats', JSON.stringify(updatedChats));
-    }
+
+    localStorage.setItem('chats', JSON.stringify(updatedChats));
+
     localStorage.setItem(newChat.id, JSON.stringify(newChat.messages));
 
     setChats(updatedChats);
@@ -243,10 +236,8 @@ const Chats = () => {
       return chat;
     });
 
-    setChats(updatedChats)
+    setChats(updatedChats);
     localStorage.setItem('chats', JSON.stringify(updatedChats));
-
-
 
     setInputValue((prev) => ({ ...prev, title: '' }));
   }
@@ -304,7 +295,7 @@ const Chats = () => {
         <div
           className={`${classes['custom-scrollbar']} flex flex-col gap-3 p-5 overflow-y-auto h-[calc(100%-170px)]`}
         >
-          {messages?.map((message, index) => {
+          {!messages.length>0?<p className='text-3xl'>開個話題吧~~!</p>:messages.map((message, index) => {
             return (
               <div
                 className={`${
