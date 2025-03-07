@@ -48,10 +48,15 @@ const Chats = () => {
   // const chatEndRef = useRef(null);
 
   //取得localStorage的紀錄
+
+  useEffect(() => {
+    console.log('chats updated = ', chats); // ✅ 確保 `chats` 更新後有值
+  }, [chats]);
+  
   
   useEffect(() => {
     const storedChats = JSON.parse(localStorage.getItem('chats')) || [];
-    console.log('storedChats111 = ', storedChats);
+    console.log('storedChats11fqwfqwf1 = ', storedChats);
     setChats(storedChats);
     if (storedChats.length > 0) {
       setActiveChat(storedChats[0].id);
