@@ -17,8 +17,6 @@ const Chats = () => {
   const messageEndRef = useRef(null);
   const [isAtBottom, setIsAtBottom] = useState(true);
 
-  //防止StrictMode建立兩個chats
-  const hasInitialized = useRef(false);
 
   //chat-box state
   const [chats, setChats] = useState([]);
@@ -217,7 +215,7 @@ const Chats = () => {
     const newChat = {
       title: text,
       id: uuidv4(),
-      time: format(new Date(), 'yyyy/mm/dd HH:mm:ss'),
+      time: format(new Date(), 'yyyy/MM/dd HH:mm:ss'),
       messages: [],
     };
     const updatedChats = [newChat, ...chats];
